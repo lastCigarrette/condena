@@ -68,9 +68,59 @@ registro SR
 registro SR
 
 1.3.3. Procesamiento
+ Cuando los periféricos E/S generan una interrupción que se encuentra habilitada la CPU la atiende siguiendo el siguiente procedimiento:
+1. Se almacenan la dirección de la siguiente instrucción del programa principal
+a ejecutar y el registro de estado SR.
+2. Se inicializa a ‘0’ el registro de estado SR.
+Este comportamiento implica que se pone a ‘0’ el bit de habilitación global GIE(1), por lo que dejarán de atenderse nuevas interrupciones, es decir, la
+interrupción que está siendo atendida no puede ser interrumpida.
+3. Si existen varias interrupciones pendientes de ser atendidas se escoge la de
+mayor prioridad.
+Cada interrupción tiene una determinada prioridad.
+El resto de interrupciones pendientes serán atendidas por orden de prioridad
+cuando haya finalizado el procesamiento de la interrupción actual
+
+Si la interrupción tiene una única fuente se inicializa a ‘0’ automáticamente el flag de interrupción asociado a la misma.
+Si la interrupción tiene múltiples fuentes es la CPU la que debe limpiar en la correspondiente RTI el flag de interrupción de la fuente que ha generado la
+interrupción.
+Para detectar la fuente que ha originado la interrupción es necesario comprobar todos los flags de interrupción de las fuentes habilitadas, e
+ignorar los flags de interrupción de las fuentes deshabilitadas.
+5. Se ejecuta la RTI asociada a la interrupción.
+6. Al finalizar la RTI se restaura el registro de estado SR previamente almacenado, y se continúa ejecutando la siguiente instrucción del programa
+principal, cuya dirección fue también almacenada.
+
+1.4. Programación C
+ Una RTI es una función sin argumentos (void) ni valor de retorno (void) identificada por la palabra clave __interrupt
+̶ Para asociar una RTI con una determinada interrupción es necesario utilizar antes de su definición la directiva #pragma vector = <N>, donde <N> es un valor
+que identifica a cada interrupción(1).
+
+2. Periféricos
+̶ Los periféricos E/S (P1, P2, TA0, TA1, Watchdog, USCI, ADC) pueden generar interrupciones cuando detectan la ocurrencia de alguna de las acciones
+(fuentes) para las que están diseñados.
+
+2.1. Puertos E/S
+̶ Las acciones (fuentes) que detectan los puertos E/S (P1, P2) son los cambios de nivel (flancos) en los pines del microcontrolador.
+̶ Cada puerto E/S dispone de 1 interrupción que detecta 8 fuentes, que se corresponden con los cambios de nivel (flancos) de cada uno de los 8 pines que
+controla el puerto E/S.
+
+2.1.1. Flags de interrupción
+─ Los flags de interrupción que indican si se ha detectado un cambio de nivel (flanco) en cada uno de los pines controlados por los puertos E/S P1 y P2 se
+encuentran en los registros P1IFG y P2IFG respectivamente:
+• Bit Px = 0  Cambio de nivel no detectado en el pin Px.
+• Bit Px = 1  Cambio de nivel detectado en el pin Px.
 
 
 
+- El cambio de nivel (flanco) que se desea detectar en cada uno de los pines controlados por los puertos E/S P1 y P2 se puede configurar mediante los bits de
+los registros P1IES y P2IES respectivamente:
+• Bit Px = 0  Cambio de nivel (flanco) de subida (‘0’  ‘1’) en el pin Px.
+• Bit Px = 1  Cambio de nivel (flanco) de bajada (‘1’  ‘0’) en el pin Px.
+
+2.1.2. Habilitación
+─ Los bits de habilitación que indican los cambios de nivel (flancos) que deben generar la interrupción de los puertos E/S P1 y P2 se encuentran en los registros
+P1IE y P2IE respectivamente:
+• Bit Px = 0  Cambio de nivel del pin Px deshabilitado para interrumpir.
+• Bit Px = 1  Cambio de nivel del pin Px habilitado para interrumpir.
 
 
 
