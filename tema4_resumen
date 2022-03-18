@@ -1,0 +1,110 @@
+1. Interrupciones
+-  Señales que generan los periféricos E/S(1) como respuesta a la ocurrencia de distintas acciones en el mundo exterior(2), las cuales requieren un 
+procesamiento rápido e inmediato por parte de la CPU.
+
+1.1. Introducción
+-  El microcontrolador interacciona con el mundo exterior a través de los periféricos E/S, los cuales están diseñados para detectar las acciones que ocurren en el mismo.
+- ̶ La CPU dispone de dos alternativas para comprobar si ha ocurrido alguna acción en el mundo exterior:
+• Sondeo: consulta periódica del estado de los periféricos E/S (registros de
+configuración) para comprobar si se ha detectado alguna acción.
+• Interrupción: señal que generan automáticamente los periféricos E/S cuando
+detectan alguna acción.
+
+1.2. Descripción
+ Cada periférico E/S tiene asociadas distintas interrupciones, que genera automáticamente cada vez que detecta la ocurrencia de alguna de las acciones 
+ para las que está diseñado.
+̶ Las acciones que puede detectar un periférico E/S se conocen como fuentes de interrupción, y cada interrupción puede gestionar varias fuentes (acciones).
+
+̶ Cada interrupción tiene asociada una rutina de código que la procesa (realiza las operaciones necesarias en función de la acción detectada), conocida como
+RTI (Rutina de Tratamiento de Interrupción) o ISR (Interrupt Service Routine).
+̶ La CPU decide las interrupciones que desea atender y las que desea ignorar.
+̶ Para atender una interrupción hay que ejecutar su RTI, lo que implica detener la ejecución del programa principal mientras se ejecuta la RTI, y una vez ejecutada
+la RTI continuar con la ejecución del programa principal.
+
+1.3. Operación
+ Para implementar un mecanismo que permita a la CPU atender de forma rápida e inmediata las distintas interrupciones generadas por los periféricos E/S es
+necesario considerar:
+• Detección: procedimiento para detectar las interrupciones que generan los
+periféricos E/S.
+• Habilitación: procedimiento para especificar las interrupciones que se desean
+atender y las que se desean ignorar.
+• Procesamiento: procedimiento para ejecutar la RTI asociada a cada
+interrupción.
+
+1.3.1. Detección
+̶ Cada acción (fuente) que puede ser detectada por los periféricos E/S tiene asociado un bit conocido como flag de interrupción, que indica si dicha acción
+ha sido detectada (‘1’) o no (‘0’).
+̶ Cuando un periférico E/S detecta una acción (fuente) activa el correspondiente flag de interrupción, indicando que su procesamiento está pendiente.
+̶ Cuando la CPU procesa la interrupción asociada a la acción (fuente) detectada debe limpiar en la correspondiente RTI el flag de interrupción, indicando que su
+procesamiento ya se ha realizado(1).
+
+̶ Los flags de interrupción se encuentran en:
+• Registros de configuración de los periféricos E/S (P1, P2, TA0, TA1, ADC).
+• Registros especiales de la CPU (Watchdog, USCI).
+
+1.3.2. Habilitación
+̶ Cada acción (fuente) que puede ser detectada por los periféricos E/S tiene asociado un bit conocido como bit de habilitación, que indica si la CPU desea
+atender (‘1’) o ignorar (‘0’) la interrupción asociada a dicha acción (fuente).
+̶ Adicionalmente existe un bit de habilitación global denominado GIE que permite ignorar (‘0’) todas las interrupciones de los periféricos E/S(1).
+̶ Para que una interrupción sea atendida debe estar habilitada, lo que requiere que estén activos tanto el bit de habilitación global GIE como alguno de los
+bits de habilitación correspondientes a las acciones (fuentes) asociadas a la interrupción.
+̶ Las interrupciones no habilitadas son ignoradas, aunque los periféricos E/S que detectan las acciones (fuentes) asociadas a las mismas siguen operando y
+activando los flags de interrupción, indicando que su procesamiento está pendiente(2).
+
+̶ Los bits de habilitación se encuentran en:
+• Registros de configuración de los periféricos E/S (P1, P2, TA0, TA1, ADC).
+• Registros especiales de la CPU (Watchdog, USCI).
+
+̶ El bit de habilitación global GIE se encuentra en:
+• Registro de estado SR de la CPU.
+̶ El registro de estado SR de la CPU no es accesible directamente, y para modificarlo hay que utilizar las funciones intrínsecas de C:
+• void __bic_SR_register(unsigned short): pone a ‘0’ (bic  bit clear)
+los bits del registro SR indicados en la máscara short(1)
+• void __bis_SR_register(unsigned short): pone a ‘1’ (bis  bit set)
+los bits del registro SR indicados en la máscara short(1)
+• void __disable_interrupt(void): pone a ‘0’ (disable) el bit GIE del
+registro SR
+• void __enable_interrupt(void): pone a ‘1’ (enable) el bit GIE del
+registro SR
+
+1.3.3. Procesamiento
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
